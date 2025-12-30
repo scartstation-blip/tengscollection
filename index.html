@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Card Collection</title>
+  <!-- Open Graph / Facebook -->
+  <meta property="og:title" content="My Card Collection" />
+  <meta property="og:description" content="Showcasing my premium TCG, holo, and custom cards." />
+  <meta property="og:image" content="https://via.placeholder.com/1200x630?text=Card+Collection" />
+  <meta property="og:type" content="website" />
+
+  <!-- Twitter / Instagram -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="My Card Collection" />
+  <meta name="twitter:description" content="Premium Pokémon, One Piece, and custom TCG cards." />
+  <meta name="twitter:image" content="https://via.placeholder.com/1200x630?text=Card+Collection" />
+  <script src="https://cdn.tailwindcss.com">  const themeToggle = document.getElementById('themeToggle');
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('bg-white');
+    document.body.classList.toggle('text-slate-900');
+  });
+
+  const modalImg = document.getElementById('modal-img');
+  modalImg.addEventListener('click', () => modalImg.classList.toggle('scale-150'));
+
+  let startX = 0;
+  modalImg.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  modalImg.addEventListener('touchend', e => { if (Math.abs(e.changedTouches[0].clientX - startX) > 50) closeModal(); });
+  // Disable right-click
+  document.addEventListener('contextmenu', e => e.preventDefault());
+
+  // Disable common save shortcuts
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && ['s','u','p'].includes(e.key.toLowerCase())) {
+      e.preventDefault();
+    }
+  });
+</script>
+  <style>
+    body { background: #0f172a; }
+    .holo:hover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(255,0,255,0.25), rgba(0,255,255,0.25), rgba(255,255,0,0.25));
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+  /* Disable image drag & selection */
+  img { -webkit-user-drag: none; user-select: none; pointer-events: auto; }
+</style>
+</head>
+<body class="text-slate-100">
+  <header class="max-w-7xl mx-auto p-6 flex items-center justify-between">
+    <div>
+    <h1 class="text-4xl font-bold">My Card Collection</h1>
+    <p class="text-slate-400 mt-2">Showcasing my favorite TCG cards</p>
+      </div>
+    <button id="themeToggle" class="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700">Toggle Theme</button>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+      <input id="search" type="text" placeholder="Search cards..." class="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 focus:outline-none" />
+      <select id="sort" class="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 mb-2">
+        <option value="name">Sort by Name</option>
+        <option value="rarity">Sort by Rarity</option>
+        <option value="price">Sort by Price</option>
+      </select>
+      <select id="filter" class="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700">
+        <option value="all">All Types</option>
+        <option value="pokemon">Pokémon</option>
+        <option value="onepiece">One Piece</option>
+        <option value="custom">Custom</option>
+      </select>
+    </div>
+
+    <div id="grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+  </main>
+
+  <template id="card-template">
+    <div class="relative bg-slate-800 rounded-2xl shadow-lg overflow-hidden hover:scale-105 transition cursor-pointer holo group" onclick="openModal(''+c.name+'',''+c.image+'',''+c.rarity+'')">
+      <div class="relative w-full aspect-[63/88]">
+      <img class="absolute inset-0 w-full h-full object-cover front" />
+      <img class="absolute inset-0 w-full h-full object-cover back hidden" />
+    </div>-[63/88] object-cover" />
+      <div class="p-3">
+        <h3 class="font-semibold"></h3>
+        <p class="text-sm text-slate-400"></p>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const cards = [
+      {
+        name: "Charizard",
+        type: "pokemon",
+        rarity: "Ultra Rare",
+        set: "Base Set",
+        number: "4/102",
+        condition: "Mint",
+        status: "Not For Sale",
+        price: "$1,200",
+        image: "https://via.placeholder.com/300x420?text=Charizard",
+        back: "https://via.placeholder.com/300x420?text=Back"
+      },
+
+      {
+        name: "Charizard",
+        type: "pokemon",
+        rarity: "Ultra Rare",
+        set: "Base Set",
+        number: "4/102",
+        condition: "Mint",
+        status: "Not For Sale",
+        image: "https://via.placeholder.com/300x420?text=Charizard",
+        back: "https://via.placeholder.com/300x420?text=Back"
+      },
+
+      {
+        name: "Charizard",
+        type: "pokemon",
+        rarity: "Ultra Rare",
+        image: "https://via.placeholder.com/300x420?text=Charizard"
+      },
+      {
+        name: "Monkey D. Luffy",
+        type: "onepiece",
+        rarity: "Leader",
+        image: "https://via.placeholder.com/300x420?text=Luffy"
+      },
+      {
+        name: "Custom Holo Card",
+        type: "custom",
+        rarity: "Prototype",
+        image: "https://via.placeholder.com/300x420?text=Custom+Card"
+      }
+    ];
+
+    const grid = document.getElementById('grid');
+    const template = document.getElementById('card-template');
+    const search = document.getElementById('search');
+    const filter = document.getElementById('filter');
+    const sort = document.getElementById('sort');
+
+    function render() {
+      grid.innerHTML = '';
+      const term = search.value.toLowerCase();
+      const type = filter.value;
+
+      cards
+        .sort((a,b)=>{
+          if(sort.value==='price') return (parseFloat(b.price?.replace(/[^0-9.]/g,''))||0)-(parseFloat(a.price?.replace(/[^0-9.]/g,''))||0);
+          return a[sort.value]?.localeCompare(b[sort.value]||'');
+        })
+        .filter(c => (type === 'all' || c.type === type))
+        .filter(c => c.name.toLowerCase().includes(term))
+        .forEach(c => {
+          const clone = template.content.cloneNode(true);
+          const imgs = clone.querySelectorAll('img');
+          imgs[0].src = c.image;
+          imgs[1].src = c.back;
+          clone.querySelector('.group').addEventListener('click', () => openModal(c));
+          clone.querySelector('h3').textContent = c.name;
+          clone.querySelector('p').textContent = c.rarity;
+          grid.appendChild(clone);
+        });
+    }
+
+    search.addEventListener('input', render);
+    filter.addEventListener('change', render);
+    sort.addEventListener('change', render);
+    render();
+  </script>
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4">
+    <div class="bg-slate-900 rounded-2xl max-w-md w-full p-4">
+      <img id="modal-img" class="w-full rounded-xl mb-3 cursor-zoom-in transition" />
+      <p id="modal-price" class="text-emerald-400 font-semibold"></p>
+      <h2 id="modal-title" class="text-xl font-bold"></h2>
+      <p id="modal-rarity" class="text-slate-400"></p>
+      <button onclick="closeModal()" class="mt-4 w-full bg-slate-700 rounded-lg py-2">Close</button>
+    </div>
+  </div>
+
+  <script>
+    function openModal(card) {
+      document.getElementById('modal-price').textContent = card.price || '';
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+      document.getElementById('modal-title').textContent = card.name;
+      document.getElementById('modal-img').src = card.image;
+      document.getElementById('modal-rarity').textContent = `${card.set} • ${card.number} • ${card.condition} • ${card.status}`;
+    }
+    function flipCard(el) {
+      el.querySelector('.front').classList.toggle('hidden');
+      el.querySelector('.back').classList.toggle('hidden');
+    }
+
+    function openModal(name, img, rarity) {
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+      document.getElementById('modal-title').textContent = name;
+      document.getElementById('modal-img').src = img;
+      document.getElementById('modal-rarity').textContent = rarity;
+    }
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+      document.getElementById('modal').classList.remove('flex');
+    }
+  </script>
+</body>
+</html>
