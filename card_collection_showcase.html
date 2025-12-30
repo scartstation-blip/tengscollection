@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Card Collection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: #0f172a; }
+    .holo:hover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(255,0,255,0.25), rgba(0,255,255,0.25), rgba(255,255,0,0.25));
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body class="text-slate-100">
+  <header class="max-w-7xl mx-auto p-6">
+    <h1 class="text-4xl font-bold">My Card Collection</h1>
+    <p class="text-slate-400 mt-2">Showcasing my favorite TCG cards</p>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+      <input id="search" type="text" placeholder="Search cards..." class="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 focus:outline-none" />
+      <select id="filter" class="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700">
+        <option value="all">All Types</option>
+        <option value="pokemon">Pokémon</option>
+        <option value="onepiece">One Piece</option>
+        <option value="custom">Custom</option>
+      </select>
+    </div>
+
+    <div id="grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+  </main>
+
+  <template id="card-template">
+    <div class="relative bg-slate-800 rounded-2xl shadow-lg overflow-hidden hover:scale-105 transition cursor-pointer holo" onclick="openModal(''+c.name+'',''+c.image+'',''+c.rarity+'')">
+      <img class="w-full aspect-[63/88] object-cover" />
+      <div class="p-3">
+        <h3 class="font-semibold"></h3>
+        <p class="text-sm text-slate-400"></p>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const cards = [
+      {
+        name: "Charizard",
+        type: "pokemon",
+        rarity: "Ultra Rare",
+        image: "https://via.placeholder.com/300x420?text=Charizard"
+      },
+      {
+        name: "Monkey D. Luffy",
+        type: "onepiece",
+        rarity: "Leader",
+        image: "https://via.placeholder.com/300x420?text=Luffy"
+      },
+      {
+        name: "Custom Holo Card",
+        type: "custom",
+        rarity: "Prototype",
+        image: "https://via.placeholder.com/300x420?text=Custom+Card"
+      }
+    ];
+
+    const grid = document.getElementById('grid');
+    const template = document.getElementById('card-template');
+    const search = document.getElementById('search');
+    const filter = document.getElementById('filter');
+
+    function render() {
+      grid.innerHTML = '';
+      const term = search.value.toLowerCase();
+      const type = filter.value;
+
+      cards
+        .filter(c => (type === 'all' || c.type === type))
+        .filter(c => c.name.toLowerCase().includes(term))
+        .forEach(c => {
+          const clone = template.content.cloneNode(true);
+          clone.querySelector('img').src = c.image;
+          clone.querySelector('h3').textContent = c.name;
+          clone.querySelector('p').textContent = c.rarity;
+          grid.appendChild(clone);
+        });
+    }
+
+    search.addEventListener('input', render);
+    filter.addEventListener('change', render);
+    render();
+  </script>
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4">
+    <div class="bg-slate-900 rounded-2xl max-w-md w-full p-4">
+      <img id="modal-img" class="w-full rounded-xl mb-3" />
+      <h2 id="modal-title" class="text-xl font-bold"></h2>
+      <p id="modal-rarity" class="text-slate-400"></p>
+      <button onclick="closeModal()" class="mt-4 w-full bg-slate-700 rounded-lg py-2">Close</button>
+    </div>
+  </div>
+
+  <script>
+    function openModal(name, img, rarity) {
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+      document.getElementById('modal-title').textContent = name;
+      document.getElementById('modal-img').src = img;
+      document.getElementById('modal-rarity').textContent = rarity;
+    }
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+      document.getElementById('modal').classList.remove('flex');
+    }
+  </script>
+</body>
+</html>
